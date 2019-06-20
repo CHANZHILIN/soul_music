@@ -35,11 +35,11 @@ class MusicFragment : BaseFragment<EmptyView, EmptyModelImpl, EmptyPresenterImpl
     companion object {
         @JvmStatic
         fun newInstance(param1: String) =
-            MusicFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
+                MusicFragment().apply {
+                    arguments = Bundle().apply {
+                        putString(ARG_PARAM1, param1)
+                    }
                 }
-            }
     }
 
     override fun getResId(): Int {

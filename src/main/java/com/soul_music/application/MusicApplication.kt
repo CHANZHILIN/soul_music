@@ -10,7 +10,7 @@ import com.kotlin_baselib.application.IComponentApplication
  *  Package:com.soul_music.application
  *  Introduce:
  **/
-class MusicApplication :IComponentApplication {
+class MusicApplication : IComponentApplication {
 
     lateinit var instance: BaseApplication
     override val application: Application
