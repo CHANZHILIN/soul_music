@@ -8,7 +8,7 @@ import com.kotlin_baselib.application.IComponentApplication
  *  Created by CHEN on 2019/6/20
  *  Email:1181785848@qq.com
  *  Package:com.soul_music.application
- *  Introduce:
+ *  Introduce: 通过在BaseApplication中反射调用
  **/
 class MusicApplication : IComponentApplication {
 
