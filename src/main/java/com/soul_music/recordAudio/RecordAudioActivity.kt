@@ -1,6 +1,7 @@
 package com.soul_music.recordAudio
 
 import android.Manifest
+import android.content.DialogInterface
 import android.content.Intent
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -18,9 +19,7 @@ import com.kotlin_baselib.base.EmptyModelImpl
 import com.kotlin_baselib.base.EmptyPresenterImpl
 import com.kotlin_baselib.base.EmptyView
 import com.kotlin_baselib.floatview.FloatingMusicService
-import com.kotlin_baselib.utils.DateUtil
-import com.kotlin_baselib.utils.SdCardUtil
-import com.kotlin_baselib.utils.SnackbarUtil
+import com.kotlin_baselib.utils.*
 import com.soul_music.R
 import kotlinx.android.synthetic.main.activity_record_audio.*
 import java.io.*
@@ -55,6 +54,7 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
 
     override fun initData() {
         mTimer.schedule(taskOne, 0, 1000)
+
     }
 
     override fun initListener() {
@@ -100,13 +100,24 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
      * 开始录音
      */
     private fun startRecord() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO, Manifest.permission.SYSTEM_ALERT_WINDOW), 1001)
-        } else {
-//            fileName = "soul_audio_" + DateUtil.parseToString(System.currentTimeMillis(), DateUtil.yyyyMMddHHmmss) + ".pcm"
-            fileName = "soul_audio.pcm"
-            getAudio(fileName)
-        }
+
+        PermissionUtils.permission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO, Manifest.permission.SYSTEM_ALERT_WINDOW)
+                .callBack(object : PermissionUtils.PermissionCallBack {
+                    override fun onGranted(permissionUtils: PermissionUtils) {
+                        //            fileName = "soul_audio_" + DateUtil.parseToString(System.currentTimeMillis(), DateUtil.yyyyMMddHHmmss) + ".pcm"
+                        fileName = "soul_audio.pcm"
+                        getAudio(fileName)
+                    }
+
+                    override fun onDenied(permissionUtils: PermissionUtils) {
+                        SnackbarUtil.ShortSnackbar(
+                                window.decorView,
+                                "拒绝了权限，将无法使用部分功能",
+                                SnackbarUtil.WARNING
+                        ).show()
+                    }
+                }).request()
+
     }
 
     private fun getAudio(fileName: String) {
@@ -145,14 +156,14 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
                                 sumVolume += Math.abs(buffer[i].toDouble());
                             }
 
-                         /*   // 大概一秒5次
-                            synchronized(mLock) {
+                            /*   // 大概一秒5次
+                               synchronized(mLock) {
 
-                                mLock.wait(210);
-                                for (i in 0 until readResult) {
-                                    sumVolume += Math.abs(buffer[i].toDouble());
-                                }
-                            }*/
+                                   mLock.wait(210);
+                                   for (i in 0 until readResult) {
+                                       sumVolume += Math.abs(buffer[i].toDouble());
+                                   }
+                               }*/
 
                             // 平方和除以数据总长度，得到音量大小。
                             val avgVolume = sumVolume / readResult
@@ -221,23 +232,29 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(this)) {
-                SnackbarUtil.ShortSnackbar(mLoadingView, "当前无权限，请授权", SnackbarUtil.WARNING).show()
-                startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")), 1002)
+                AlertDialogUtil.getInstance(mContext).showAlertDialog("播放录音界面需要悬浮窗权限，请授权", "取消", "授权",
+                        DialogInterface.OnClickListener { dialog, which ->
+                            dialog.dismiss()
+                        },
+                        DialogInterface.OnClickListener { dialog, which ->
+                            startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")), 1002)
+                        })
+
+            } else {
+                startFloatMusicService(fileName)
             }
         } else {
-            val intent = Intent(this, FloatingMusicService::class.java)
-            intent.putExtra("fileName", fileName)
-            startService(intent)
+            startFloatMusicService(fileName)
         }
     }
 
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            1001 -> getAudio(fileName)
-        }
+    fun startFloatMusicService(recordFileName: String) {
+        val intent = Intent(this, FloatingMusicService::class.java)
+        intent.putExtra("fileName", recordFileName)
+        startService(intent)
     }
+
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
