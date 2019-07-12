@@ -1,12 +1,16 @@
 package com.soul_music.recordAudio
 
 import android.Manifest
+import android.annotation.TargetApi
+import android.app.AppOpsManager
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.net.Uri
+import android.os.Binder
 import android.os.Build
 import android.os.Process
 import android.provider.Settings
@@ -58,11 +62,15 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
     }
 
     override fun initListener() {
+        record_audio.setOnLongClickListener {
+            startRecord()
+            true
+        }
         record_audio.setOnTouchListener { v, event ->
             when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    startRecord()
-                }
+                /*   MotionEvent.ACTION_DOWN -> {
+                       startRecord()
+                   }*/
                 MotionEvent.ACTION_UP -> {
                     pauseRecord()
                 }
@@ -100,23 +108,30 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
      * 开始录音
      */
     private fun startRecord() {
+        if (PermissionUtils.isGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO)) {
+            //            fileName = "soul_audio_" + DateUtil.parseToString(System.currentTimeMillis(), DateUtil.yyyyMMddHHmmss) + ".pcm"
+            fileName = "soul_audio.pcm"
+            getAudio(fileName)
+        } else {
+            PermissionUtils.permission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO/*,Manifest.permission.SYSTEM_ALERT_WINDOW*/)
+                    .callBack(object : PermissionUtils.PermissionCallBack {
+                        override fun onGranted(permissionUtils: PermissionUtils) {
+                            SnackbarUtil.ShortSnackbar(
+                                    window.decorView,
+                                    "已授权",
+                                    SnackbarUtil.WARNING
+                            ).show()
+                        }
 
-        PermissionUtils.permission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO, Manifest.permission.SYSTEM_ALERT_WINDOW)
-                .callBack(object : PermissionUtils.PermissionCallBack {
-                    override fun onGranted(permissionUtils: PermissionUtils) {
-                        //            fileName = "soul_audio_" + DateUtil.parseToString(System.currentTimeMillis(), DateUtil.yyyyMMddHHmmss) + ".pcm"
-                        fileName = "soul_audio.pcm"
-                        getAudio(fileName)
-                    }
-
-                    override fun onDenied(permissionUtils: PermissionUtils) {
-                        SnackbarUtil.ShortSnackbar(
-                                window.decorView,
-                                "拒绝了权限，将无法使用部分功能",
-                                SnackbarUtil.WARNING
-                        ).show()
-                    }
-                }).request()
+                        override fun onDenied(permissionUtils: PermissionUtils) {
+                            SnackbarUtil.ShortSnackbar(
+                                    window.decorView,
+                                    "拒绝了权限，将无法使用录音功能",
+                                    SnackbarUtil.WARNING
+                            ).show()
+                        }
+                    }).request()
+        }
 
     }
 
@@ -153,7 +168,7 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
                             for (i in 0 until readResult) {
                                 //数据写入文件中
                                 outputStream.write(buffer[i].toInt())
-                                sumVolume += Math.abs(buffer[i].toDouble());
+                                sumVolume += Math.abs(buffer[i].toDouble())
                             }
 
                             /*   // 大概一秒5次
@@ -161,7 +176,7 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
 
                                    mLock.wait(210);
                                    for (i in 0 until readResult) {
-                                       sumVolume += Math.abs(buffer[i].toDouble());
+                                       sumVolume += Math.abs(buffer[i].toDouble())
                                    }
                                }*/
 
@@ -172,7 +187,7 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
                             r++
                             Log.e(Constants.DEBUG_TAG, "pcm录制中...")
                         } catch (e: InterruptedException) {
-                            e.printStackTrace();
+                            e.printStackTrace()
                         }
                     }
 
@@ -194,6 +209,9 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
      */
     private fun pauseRecord() {
         isRecording = false
+        if (currentRecordMilliSeconds < 1000) {
+            return
+        }
         currentRecordMilliSeconds = 0
         Log.e(Constants.DEBUG_TAG, "录制完成...")
         record_line_view.setMaxHeight(0.0)
@@ -218,7 +236,6 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
         override fun run() {
             if (isRecording) {
                 currentRecordMilliSeconds += 1000
-                Log.e(Constants.DEBUG_TAG, currentRecordMilliSeconds.toString())
                 Log.e(Constants.DEBUG_TAG, DateUtil.getFormatHMS(currentRecordMilliSeconds))
                 runOnUiThread { tv_record_duration.setText(DateUtil.getFormatHMS(currentRecordMilliSeconds)) }
             }
@@ -226,28 +243,37 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
     }
 
 
+    /**
+     * 开启播放录音悬浮窗口服务
+     */
     fun startFloatMusicService() {
         if (FloatingMusicService.isStarted) {
             return
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(this)) {
-                AlertDialogUtil.getInstance(mContext).showAlertDialog("播放录音界面需要悬浮窗权限，请授权", "取消", "授权",
-                        DialogInterface.OnClickListener { dialog, which ->
-                            dialog.dismiss()
-                        },
-                        DialogInterface.OnClickListener { dialog, which ->
-                            startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")), 1002)
-                        })
-
-            } else {
-                startFloatMusicService(fileName)
-            }
-        } else {
+        if (checkFloatWindowPermission(mContext)) {  //有悬浮窗权限，直接开启悬浮窗
             startFloatMusicService(fileName)
+        } else {  //没有悬浮窗权限
+            AlertDialogUtil.getInstance(mContext).showAlertDialog("播放录音界面需要悬浮窗权限，请授权", "取消", "授权",
+                    DialogInterface.OnClickListener { dialog, which ->
+                        dialog.dismiss()
+                    },
+                    DialogInterface.OnClickListener { dialog, which ->
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //6.0以上
+                            startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")), 1002)
+                        } else {        //6.0以下
+                            val intent = Intent()
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            intent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS")
+                            intent.setData(Uri.fromParts("package", getPackageName(), null))
+                            startActivityForResult(intent, 1002)
+                        }
+                    })
         }
     }
 
+    /**
+     * 开启播放录音悬浮窗口服务
+     */
     fun startFloatMusicService(recordFileName: String) {
         val intent = Intent(this, FloatingMusicService::class.java)
         intent.putExtra("fileName", recordFileName)
@@ -255,17 +281,62 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
     }
 
 
+    /**
+     * 检测悬浮窗权限
+     */
+    fun checkFloatWindowPermission(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       //6.0以上
+            return Settings.canDrawOverlays(this)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {//4.4-5.1)
+            return checkOp(context, 24)  //OP_SYSTEM_ALERT_WINDOW = 24;
+        } else {  //低于4.4
+            return true
+        }
+    }
+
+    /**
+     * 4.4-5.1 的悬浮窗权限
+     */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private fun checkOp(context: Context, op: Int): Boolean {
+        val version = Build.VERSION.SDK_INT
+        if (version >= 19) {
+            val manager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+            try {
+                val clazz = AppOpsManager::class.java
+                val method = clazz.getDeclaredMethod("checkOp", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType, String::class.java)
+                return AppOpsManager.MODE_ALLOWED == method.invoke(manager, op, Binder.getCallingUid(), context.getPackageName()) as Int
+            } catch (e: Exception) {
+                Log.e(Constants.DEBUG_TAG, Log.getStackTraceString(e))
+            }
+
+        } else {
+            Log.e(Constants.DEBUG_TAG, "Below API 19 cannot invoke!")
+        }
+        return false
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != RESULT_OK) return
         when (requestCode) {
             1002 -> {
-                val intent = Intent(this, FloatingMusicService::class.java)
-                intent.putExtra("fileName", fileName)
-                startService(intent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       //6.0以上
+                    if (!Settings.canDrawOverlays(this)) {  //拒绝授权
+                        SnackbarUtil.ShortSnackbar(window.decorView, "悬浮窗口权限未授权，无法使用播放功能", SnackbarUtil.WARNING).show()
+                    } else {
+                        startFloatMusicService(fileName)
+                    }
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {//4.4-5.1)
+                    if (checkOp(mContext, 24)) {  //OP_SYSTEM_ALERT_WINDOW = 24;
+                        startFloatMusicService(fileName)
+                    } else {//拒绝授权
+                        SnackbarUtil.ShortSnackbar(window.decorView, "悬浮窗口权限未授权，无法使用播放功能", SnackbarUtil.WARNING).show()
+                    }
+                }
             }
         }
     }
+
 
 }
