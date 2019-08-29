@@ -4,10 +4,12 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
 
     <application>
+        <activity android:name=".recordAudio.NRecordAudioActivity"/>
+        <activity android:name=".editAudio.EditAudioActivity" />
         <activity android:name=".recordAudio.RecordAudioActivity" />
     </application>
 

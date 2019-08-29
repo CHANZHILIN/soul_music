@@ -55,7 +55,7 @@ class MusicFragment : BaseFragment<EmptyView, EmptyModelImpl, EmptyPresenterImpl
 
     override fun initListener() {
         float_action_button.setOnClickListener {
-            ARouter.getInstance().build(Constants.RECORD_AUDIO_ACTIVITY_PATH).navigation()
+            ARouter.getInstance().build(Constants.NRECORD_AUDIO_ACTIVITY_PATH).navigation()
 
         }
     }

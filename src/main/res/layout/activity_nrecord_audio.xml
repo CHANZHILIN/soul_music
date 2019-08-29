@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".recordAudio.NRecordAudioActivity">
+
+    <include
+        android:id="@+id/record_audio_toolbar"
+        layout="@layout/layout_toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    <com.soul_music.view.WaveSurfaceView
+        android:id="@+id/wave_surface_view"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/record_audio_toolbar"/>
+
+    <com.soul_music.view.WaveformView
+        android:id="@+id/wave_form_view"
+        android:layout_width="match_parent"
+        android:layout_height="340dp"
+        android:visibility="invisible"
+        app:audio_line_color="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.soul_music.view.ObservableScrollView
+        android:id="@+id/observable_scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wave_surface_view">
+
+        <LinearLayout
+            android:id="@+id/ll_audio_record_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.soul_music.view.ProgressViewAudio
+                android:id="@+id/progress_view_audio"
+                android:layout_width="36000dp"
+                android:layout_height="6dp" />
+        </LinearLayout>
+    </com.soul_music.view.ObservableScrollView>
+
+    <TextView
+        android:id="@+id/tv_record_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="00:00:00"
+        android:textColor="@color/colorPrimary"
+        android:textSize="26sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/observable_scrollView" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_record_time">
+
+        <com.kotlin_baselib.view.CircleButton
+            android:id="@+id/btn_record_mark"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginRight="30dp"
+            app:circle_background="@color/colorPrimary"
+            app:circle_text="标记"
+            android:visibility="gone"
+            app:circle_textSize="10sp" />
+
+
+        <com.kotlin_baselib.view.CircleButton
+            android:id="@+id/btn_record_on"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            app:circle_background="@color/colorPrimary"
+            app:circle_text="@string/start"
+            app:circle_textSize="18sp" />
+
+        <com.kotlin_baselib.view.CircleButton
+            android:id="@+id/btn_record_control"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="30dp"
+            android:visibility="gone"
+            app:circle_background="@color/colorPrimary"
+            app:circle_text="完成"
+            app:circle_textSize="10sp" />
+
+    </LinearLayout>
+
+
+</android.support.constraint.ConstraintLayout>

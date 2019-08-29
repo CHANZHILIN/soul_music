@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".editAudio.EditAudioActivity">
+
+    <include layout="@layout/layout_toolbar" />
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="360dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="10dp"
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:cardCornerRadius="10dp">
+
+        <RelativeLayout
+            android:id="@+id/info1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical">
+
+            <com.soul_music.view.WaveSurfaceView
+                android:id="@+id/wavesfv1"
+                android:layout_width="200dp"
+                android:layout_height="80dp"
+                android:visibility="gone" />
+
+            <com.soul_music.view.ObservableScrollView
+                android:id="@+id/hlv_scroll1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/ll_wave_content1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="15dp"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:id="@+id/rl_time_show"
+                        android:layout_width="match_parent"
+                        android:layout_height="22dp">
+
+                        <LinearLayout
+                            android:id="@+id/ll_time_counter"
+                            android:layout_width="match_parent"
+                            android:layout_height="20dp"
+                            android:layout_above="@+id/line"
+                            android:orientation="horizontal"></LinearLayout>
+
+                        <View
+                            android:id="@+id/line"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="#CCCCCC" />
+                    </RelativeLayout>
+
+                    <com.soul_music.view.WaveformView
+                        android:id="@+id/waveview1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:audio_bg_color="@color/transparent"
+                        app:audio_line_color="@color/white"/>
+                </LinearLayout>
+            </com.soul_music.view.ObservableScrollView>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:background="#FF6666" />
+
+            <RelativeLayout
+                android:id="@+id/rl_control_play"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginBottom="15dp">
+
+                <com.kotlin_baselib.view.CircleButton
+                    android:id="@+id/iv_play"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:circle_background="@color/white"
+                    app:circle_textSize="10sp"
+                    app:circle_text="播放"
+                    app:circle_textColor="@color/colorPrimary" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_total_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="10dp"
+                android:text="00:00:00"
+                android:textColor="@color/white" />
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="10dp"
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:cardCornerRadius="10dp">
+
+        <RelativeLayout
+            android:id="@+id/info"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:nextFocusDown="@+id/play">
+
+            <com.soul_music.view.WaveSurfaceView
+                android:id="@+id/wavesfv"
+                android:layout_width="200dp"
+                android:layout_height="80dp"
+                android:visibility="invisible" />
+
+            <com.soul_music.view.ObservableScrollView
+                android:id="@+id/hlv_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="82dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/ll_wave_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:id="@+id/rl_time_show1"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:visibility="invisible">
+
+                        <LinearLayout
+                            android:id="@+id/ll_time_counter1"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_above="@+id/line1"
+                            android:orientation="horizontal"></LinearLayout>
+
+                        <View
+                            android:id="@+id/line1"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_alignParentBottom="true"
+                            android:background="#CCCCCC" />
+                    </RelativeLayout>
+
+                    <com.soul_music.view.WaveformView
+                        android:id="@+id/waveview"
+                        android:layout_width="match_parent"
+                        app:audio_line_color="@color/white"
+                        app:audio_bg_color="@color/transparent"
+                        android:layout_height="80dp"/>
+                </LinearLayout>
+            </com.soul_music.view.ObservableScrollView>
+
+            <View
+                android:layout_width="0.5dp"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:background="@color/white" />
+        </RelativeLayout>
+
+
+    </android.support.v7.widget.CardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_record_time">
+
+        <com.kotlin_baselib.view.CircleButton
+            android:id="@+id/btn_edit_audio_delete"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginRight="30dp"
+            android:visibility="visible"
+            app:circle_background="@color/color_red"
+            app:circle_text="删除"
+            app:circle_textSize="10sp" />
+
+
+        <com.kotlin_baselib.view.CircleButton
+            android:id="@+id/btn_edit_audio_clip"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            app:circle_background="@color/colorPrimary"
+            app:circle_text="剪裁"
+            app:circle_textSize="18sp" />
+
+        <com.kotlin_baselib.view.CircleButton
+            android:id="@+id/btn_edit_audio_done"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="30dp"
+            android:visibility="visible"
+            app:circle_background="@color/colorPrimary"
+            app:circle_text="完成"
+            app:circle_textSize="10sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -9,9 +9,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Binder
 import android.os.Build
+import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.MotionEvent
+import android.view.WindowManager
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.kotlin_baselib.api.Constants
 import com.kotlin_baselib.audio.AudioRecordManager
@@ -35,6 +37,13 @@ class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresent
 
     override fun createPresenter(): EmptyPresenterImpl {
         return EmptyPresenterImpl(this)
+    }
+
+    override fun preSetContentView() {
+        super.preSetContentView()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        }
     }
 
     override fun getResId(): Int {

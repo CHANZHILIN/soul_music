@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#35843A</color>
+    <color name="colorPrimaryDark">#2F6F32</color>
+    <color name="colorAccent">#35843A</color>
+
+
+    <!--WaveFormView-->
+    <color name="waveform_selected">#33b5e5</color>
+    <color name="waveform_unselected">#195a72</color>
+    <color name="waveform_unselected_bkgnd_overlay">#0a242d</color>
+    <color name="selection_border">#ffffff</color>
+    <color name="playback_indicator">#ffff66</color>
+    <color name="grid_line">#66ffffff</color>
+    <color name="timecode">#ddffffdd</color>
+    <color name="timecode_shadow">#aa000000</color>
+
+    <!--WaveCanvas-->
+    <color name="vine_green">#b5c3db</color>
+    <color name="dark_black">#4d000000</color>
+    <color name="hui">#b6c5dc</color>
+
+
+    <!--ProgressView_Audio-->
+    <color name="progress_divider_color">#afd0f7</color>
+    <color name="vine_green_1">#2A3552</color>
+    <color name="edit_color">#ffcc42</color>
+</resources>
