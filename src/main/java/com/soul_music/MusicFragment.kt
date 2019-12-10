@@ -1,10 +1,8 @@
 package com.soul_music
 
 import android.os.Bundle
-import com.alibaba.android.arouter.launcher.ARouter
-import com.kotlin_baselib.api.Constants
-import com.kotlin_baselib.mvvmbase.BaseViewModelFragment
-import com.kotlin_baselib.mvvmbase.EmptyViewModel
+import com.kotlin_baselib.base.BaseViewModelFragment
+import com.kotlin_baselib.base.EmptyViewModel
 import kotlinx.android.synthetic.main.fragment_music.*
 
 

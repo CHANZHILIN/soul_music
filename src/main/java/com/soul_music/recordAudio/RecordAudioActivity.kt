@@ -17,8 +17,8 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.kotlin_baselib.api.Constants
 import com.kotlin_baselib.audio.AudioRecordManager
 import com.kotlin_baselib.floatview.FloatingMusicService
-import com.kotlin_baselib.mvvmbase.BaseViewModelActivity
-import com.kotlin_baselib.mvvmbase.EmptyViewModel
+import com.kotlin_baselib.base.BaseViewModelActivity
+import com.kotlin_baselib.base.EmptyViewModel
 import com.kotlin_baselib.utils.AlertDialogUtil
 import com.kotlin_baselib.utils.PermissionUtils
 import com.kotlin_baselib.utils.SnackbarUtil

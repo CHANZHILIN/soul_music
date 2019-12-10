@@ -21,8 +21,8 @@ import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.kotlin_baselib.api.Constants
 import com.kotlin_baselib.floatview.FloatingMusicService
-import com.kotlin_baselib.mvvmbase.BaseViewModelActivity
-import com.kotlin_baselib.mvvmbase.EmptyViewModel
+import com.kotlin_baselib.base.BaseViewModelActivity
+import com.kotlin_baselib.base.EmptyViewModel
 import com.kotlin_baselib.utils.*
 import com.soul_music.R
 import com.soul_music.myInterface.ScrollViewListener
