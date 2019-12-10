@@ -3,12 +3,9 @@ package com.soul_music
 import android.os.Bundle
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kotlin_baselib.api.Constants
-import com.kotlin_baselib.base.BaseFragment
-import com.kotlin_baselib.base.EmptyModelImpl
-import com.kotlin_baselib.base.EmptyPresenterImpl
-import com.kotlin_baselib.base.EmptyView
+import com.kotlin_baselib.mvvmbase.BaseViewModelFragment
+import com.kotlin_baselib.mvvmbase.EmptyViewModel
 import kotlinx.android.synthetic.main.fragment_music.*
-import com.alibaba.android.arouter.facade.callback.NavCallback as NavCallback1
 
 
 private const val ARG_PARAM = "param1"
@@ -19,13 +16,11 @@ private const val ARG_PARAM = "param1"
  *  Package:com.soul_music
  *  Introduce: 音乐Fragment
  **/
-class MusicFragment : BaseFragment<EmptyView, EmptyModelImpl, EmptyPresenterImpl>(), EmptyView {
-
-    override fun createPresenter(): EmptyPresenterImpl {
-        return EmptyPresenterImpl(this)
-    }
+class MusicFragment : BaseViewModelFragment<EmptyViewModel>() {
 
     private var param1: String? = null
+
+    override fun providerVMClass(): Class<EmptyViewModel>? = EmptyViewModel::class.java
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,14 +49,10 @@ class MusicFragment : BaseFragment<EmptyView, EmptyModelImpl, EmptyPresenterImpl
     }
 
     override fun initListener() {
-        float_action_button.setOnClickListener {
+      /*  float_action_button.setOnClickListener {
             ARouter.getInstance().build(Constants.NRECORD_AUDIO_ACTIVITY_PATH).navigation()
 
-        }
-    }
-
-    override fun lazyLoad() {
-
+        }*/
     }
 
 

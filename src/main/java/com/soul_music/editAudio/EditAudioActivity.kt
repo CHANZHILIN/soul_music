@@ -17,10 +17,8 @@ import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kotlin_baselib.api.Constants
-import com.kotlin_baselib.base.BaseActivity
-import com.kotlin_baselib.base.EmptyModelImpl
-import com.kotlin_baselib.base.EmptyPresenterImpl
-import com.kotlin_baselib.base.EmptyView
+import com.kotlin_baselib.mvvmbase.BaseViewModelActivity
+import com.kotlin_baselib.mvvmbase.EmptyViewModel
 import com.kotlin_baselib.utils.*
 import com.soul_music.R
 import com.soul_music.myInterface.ScrollViewListener
@@ -34,7 +32,14 @@ import java.io.File
 import java.util.*
 
 @Route(path = Constants.EDIT_AUDIO_ACTIVITY_PATH)
-class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenterImpl>(), EmptyView, ScrollViewListener {
+class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewListener {
+
+    override fun providerVMClass(): Class<EmptyViewModel>? = EmptyViewModel::class.java
+
+
+    override fun getResId(): Int {
+        return R.layout.activity_edit_audio
+    }
 
 
     private var positions: String = ""
@@ -72,8 +77,14 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
         when (it.what) {
             1 -> {
                 try {
-                    hlv_scroll.scrollTo(totalLength * mPlayer!!.getCurrentPosition() / mPlayer!!.getDuration(), 0)
-                    hlv_scroll1.scrollTo(totalLength * mPlayer!!.getCurrentPosition() / mPlayer!!.getDuration(), 0)
+                    hlv_scroll.scrollTo(
+                        totalLength * mPlayer!!.getCurrentPosition() / mPlayer!!.getDuration(),
+                        0
+                    )
+                    hlv_scroll1.scrollTo(
+                        totalLength * mPlayer!!.getCurrentPosition() / mPlayer!!.getDuration(),
+                        0
+                    )
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -85,8 +96,9 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
                 timeSize()
             }
             10 -> {
-                SnackbarUtil.ShortSnackbar(window.decorView, "编辑成功！", SnackbarUtil.CONFIRM).show()
-                val absolutePath = outFile?.getAbsolutePath()
+                SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "编辑成功！", SnackbarUtil.CONFIRM)
+                    .show()
+//                val absolutePath = outFile?.getAbsolutePath()
                 val file_pcm = File(outFile?.getAbsolutePath()?.replace(".wav", ".pcm"))
                 if (outFile!!.exists() && file_pcm.exists()) {
                     val newNameFile_wav = File(SdCardUtil.DEFAULT_RECORD_PATH + filename + ".wav")
@@ -113,22 +125,12 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
      */
     private fun deleteAll() {
         AlertDialogUtil.getInstance(mContext).showAlertDialog("确定删除所有音频吗？", "取消", "确认",
-                DialogInterface.OnClickListener { dialog, which ->
-                    dialog.dismiss()
-                },
-                DialogInterface.OnClickListener { dialog, which ->
-                    finish()
-                })
-    }
-
-
-    override fun createPresenter(): EmptyPresenterImpl {
-        return EmptyPresenterImpl(this)
-    }
-
-
-    override fun getResId(): Int {
-        return R.layout.activity_edit_audio
+            DialogInterface.OnClickListener { dialog, which ->
+                dialog.dismiss()
+            },
+            DialogInterface.OnClickListener { dialog, which ->
+                finish()
+            })
     }
 
     override fun initData() {
@@ -141,17 +143,28 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
 
         mDensity = metrics.density
 
-        ll_wave_content.setPadding(width / 2 - Dp2PxUtil.dip2px(this, 10f), 0, width / 2 - Dp2PxUtil.dip2px(this, 10f), 0)
-        ll_wave_content1.setPadding(width / 2 - Dp2PxUtil.dip2px(this, 10f), 0, width / 2 - Dp2PxUtil.dip2px(this, 10f), 0)
+        ll_wave_content.setPadding(
+            width / 2 - Dp2PxUtil.dip2px(this, 10f),
+            0,
+            width / 2 - Dp2PxUtil.dip2px(this, 10f),
+            0
+        )
+        ll_wave_content1.setPadding(
+            width / 2 - Dp2PxUtil.dip2px(this, 10f),
+            0,
+            width / 2 - Dp2PxUtil.dip2px(this, 10f),
+            0
+        )
 
         filename = mFilename?.replace(".pcm", "")
 
         flags = getSharedPreferences(filename, Context.MODE_PRIVATE).getString("flags", null)
 
         if (flags != null) {    //标记点
-            flagsPositions = flags!!.split(",".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
+            flagsPositions =
+                flags!!.split(",".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
             for (i in flagsPositions!!.indices) {
-                flagPositions.add(Integer.valueOf(flagsPositions!![i]))
+                flagPositions.add(Integer.valueOf(flagsPositions!![i]!!))
             }
         }
 
@@ -200,18 +213,20 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
         val dialog = AlertDialog.Builder(mContext).setTitle("另存为").setMessage("请输入保存的名称：")
         val editText = EditText(mContext)
         dialog.setView(editText)
-        dialog.setPositiveButton("保存", DialogInterface.OnClickListener { dialog, which ->
+        dialog.setPositiveButton("保存", DialogInterface.OnClickListener { dialog1, which ->
             val saveName = editText.text.toString().trim()
             if (TextUtils.isEmpty(saveName)) {
-                SnackbarUtil.ShortSnackbar(window.decorView, "音频文件名称不能为空！", SnackbarUtil.WARNING).show()
+                SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "音频文件名称不能为空！", SnackbarUtil.WARNING)
+                    .show()
                 return@OnClickListener
             }
             saveAs(saveName)
-            dialog.dismiss()
-            SnackbarUtil.ShortSnackbar(window.decorView, "保存成功", SnackbarUtil.CONFIRM).show()
-            Handler().postDelayed(Runnable { finish() }, 2000)
+            dialog1.dismiss()
+            SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "保存成功", SnackbarUtil.CONFIRM).show()
+            Handler().postDelayed({ finish() }, 2000)
 
-        }).setNegativeButton("取消", { dialog, which -> dialog.dismiss() }).show()
+        })
+            .setNegativeButton("取消") { dialog1, which -> dialog1.dismiss() }.show()
     }
 
     /**
@@ -219,12 +234,13 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
      */
     private fun saveAs(newFileName: String) {
         val oldWav = File(SdCardUtil.DEFAULT_RECORD_PATH + filename + ".wav")
-        var newNameFile_wav: File? = null
+        val newNameFile_wav: File?
         if (oldWav.exists()) {
             newNameFile_wav = File(SdCardUtil.DEFAULT_RECORD_PATH + newFileName + ".wav")
             oldWav.renameTo(newNameFile_wav)    //更换名字
         } else {
-            SnackbarUtil.ShortSnackbar(window.decorView, "你操作的文件不存在！", SnackbarUtil.WARNING).show()
+            SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "你操作的文件不存在！", SnackbarUtil.WARNING)
+                .show()
         }
         //保存视频录制的总时长
         setInfor(newFileName)
@@ -235,10 +251,11 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
 
     private fun setInfor(newFileName: String) {
         val sp = getSharedPreferences(newFileName + "wav", Context.MODE_PRIVATE)
-        val edit = sp.edit()
         val totalTime = waveview.pixelsToMillisecsTotal()
-        edit.putInt("total_time", totalTime)
-        edit.commit()
+        sp.edit().apply {
+            putInt("total_time", totalTime)
+            apply()
+        }
     }
 
 
@@ -258,11 +275,13 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
                     }
                 }
             }
-            val edit = sp.edit()
-            edit.clear()
-            edit.putString("flags", positions)
-            edit.putInt("size", flagPositions.size)
-            edit.commit()
+         sp.edit().apply {
+                clear()
+                putString("flags", positions)
+                putInt("size", flagPositions.size)
+                apply()
+            }
+
         }
     }
 
@@ -274,7 +293,8 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
         if (null != clipPosition && (clipPosition as MutableList<FloatArray>).size > 0) {
             onSaveClipFile()
         } else {
-            SnackbarUtil.ShortSnackbar(window.decorView, "请在下方选择要删除的音频段!", SnackbarUtil.ALERT).show()
+            SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "请在下方选择要删除的音频段!", SnackbarUtil.ALERT)
+                .show()
         }
 
     }
@@ -310,12 +330,14 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
                 val fs = clipPosition!!.get(i)
                 val pixelsToMillisecsTotal = waveview.pixelsToMillisecsTotal()
                 //最后的编辑区间
-                val start = (fs[0] * pixelsToMillisecsTotal / totalLength.toFloat() / 1000f).toDouble()
-                val end = (fs[1] * pixelsToMillisecsTotal / totalLength.toFloat() / 1000f).toDouble()
+                val start =
+                    (fs[0] * pixelsToMillisecsTotal / totalLength.toFloat() / 1000f).toDouble()
+                val end =
+                    (fs[1] * pixelsToMillisecsTotal / totalLength.toFloat() / 1000f).toDouble()
                 //清除删除区域的标记点
                 for (j in flagsPositions!!.indices.reversed()) {//必须保证每个元素都要遍历的到
                     var temp = false
-                    val pos = Integer.valueOf(flagsPositions!![j]) / 1000
+                    val pos = Integer.valueOf(flagsPositions!![j]!!) / 1000
                     if (pos <= end && pos >= start) {
                         flagPositions.set(j, 0)
                         temp = true
@@ -396,10 +418,13 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
                     }
                     cutPaths.clear()
                     for (i in clipPosition_use1.indices) {
-                        val outputFile = File(SdCardUtil.DEFAULT_RECORD_PATH + "/clip_files/" + "clip_" + i + ".wav")
+                        val outputFile =
+                            File(SdCardUtil.DEFAULT_RECORD_PATH + "/clip_files/" + "clip_" + i + ".wav")
                         cutPaths.add(outputFile.getAbsolutePath())
-                        a.WriteFile(outputFile, clipPosition_use1.get(i)[0].toInt(),
-                                (clipPosition_use1.get(i)[1] - clipPosition_use1.get(i)[0]).toInt())
+                        a.WriteFile(
+                            outputFile, clipPosition_use1.get(i)[0].toInt(),
+                            (clipPosition_use1.get(i)[1] - clipPosition_use1.get(i)[0]).toInt()
+                        )
                     }
 
                     val file = File(SdCardUtil.DEFAULT_RECORD_PATH + filename + ".wav")
@@ -409,7 +434,10 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
 
                     //合并剪贴的片段文件
                     if (cutPaths.size > 0) {
-                        AudioUtils.mergeAudioFiles(SdCardUtil.DEFAULT_RECORD_PATH + filename + ".wav", cutPaths)
+                        AudioUtils.mergeAudioFiles(
+                            SdCardUtil.DEFAULT_RECORD_PATH + filename + ".wav",
+                            cutPaths
+                        )
                     }
 
                     //遍历删除临时文件
@@ -443,7 +471,14 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
         waveview.setCutPostion(currentPosition)
     }
 
-    override fun onScrollChanged(scrollView: ObservableScrollView, x: Int, y: Int, oldx: Int, oldy: Int, isByUser: Boolean) {
+    override fun onScrollChanged(
+        scrollView: ObservableScrollView,
+        x: Int,
+        y: Int,
+        oldx: Int,
+        oldy: Int,
+        isByUser: Boolean
+    ) {
         waveview.showSelectArea(true)
         currentPosition = x
 
@@ -474,15 +509,16 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
                     mPlayer!!.start()
                     totalTime = mPlayer!!.getDuration()
                     mTimeCounter = 0
-                    mPlayer!!.setOnCompletionListener(MediaPlayer.OnCompletionListener {
+                    mPlayer!!.setOnCompletionListener {
                         iv_play.setButtonText("播放")
                         hlv_scroll.scrollTo(totalLength, 0)
                         hlv_scroll1.scrollTo(totalLength, 0)
                         mTimeCounter = -1
                         mPlayer = null
-                    })
+                    }
                 } catch (e: java.io.IOException) {
-                    SnackbarUtil.ShortSnackbar(window.decorView, "文件播放出错！", SnackbarUtil.WARNING).show()
+                    SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "文件播放出错！", SnackbarUtil.WARNING)
+                        .show()
 //                    Toast.makeText(this, "文件播放出错！", Toast.LENGTH_SHORT).show()
                 }
 
@@ -563,13 +599,19 @@ class EditAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenter
         tv_total_time.text = DateUtil.formatSecond(totalTime)
         ll_time_counter.removeAllViews()
         totalLength = totalTime * Dp2PxUtil.dip2px(this, 60f)
-        ll_wave_content.layoutParams = FrameLayout.LayoutParams(totalLength, FrameLayout.LayoutParams.MATCH_PARENT)
-        ll_wave_content1.layoutParams = FrameLayout.LayoutParams(totalLength, FrameLayout.LayoutParams.MATCH_PARENT)
-        ll_time_counter1.layoutParams = RelativeLayout.LayoutParams(totalLength, RelativeLayout.LayoutParams.MATCH_PARENT)
+        ll_wave_content.layoutParams =
+            FrameLayout.LayoutParams(totalLength, FrameLayout.LayoutParams.MATCH_PARENT)
+        ll_wave_content1.layoutParams =
+            FrameLayout.LayoutParams(totalLength, FrameLayout.LayoutParams.MATCH_PARENT)
+        ll_time_counter1.layoutParams =
+            RelativeLayout.LayoutParams(totalLength, RelativeLayout.LayoutParams.MATCH_PARENT)
         for (i in 0 until totalTime) {
             val line1 = LinearLayout(this)
             line1.orientation = LinearLayout.HORIZONTAL
-            line1.layoutParams = LinearLayout.LayoutParams(Dp2PxUtil.dip2px(this, 60f), LinearLayout.LayoutParams.WRAP_CONTENT)
+            line1.layoutParams = LinearLayout.LayoutParams(
+                Dp2PxUtil.dip2px(this, 60f),
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
             line1.gravity = Gravity.CENTER
 
             val timeText = TextView(this)

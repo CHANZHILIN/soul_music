@@ -9,7 +9,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Binder
 import android.os.Build
-import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.MotionEvent
@@ -17,11 +16,9 @@ import android.view.WindowManager
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.kotlin_baselib.api.Constants
 import com.kotlin_baselib.audio.AudioRecordManager
-import com.kotlin_baselib.base.BaseActivity
-import com.kotlin_baselib.base.EmptyModelImpl
-import com.kotlin_baselib.base.EmptyPresenterImpl
-import com.kotlin_baselib.base.EmptyView
 import com.kotlin_baselib.floatview.FloatingMusicService
+import com.kotlin_baselib.mvvmbase.BaseViewModelActivity
+import com.kotlin_baselib.mvvmbase.EmptyViewModel
 import com.kotlin_baselib.utils.AlertDialogUtil
 import com.kotlin_baselib.utils.PermissionUtils
 import com.kotlin_baselib.utils.SnackbarUtil
@@ -30,14 +27,12 @@ import kotlinx.android.synthetic.main.activity_record_audio.*
 
 
 @Route(path = Constants.RECORD_AUDIO_ACTIVITY_PATH)
-class RecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenterImpl>(), EmptyView {
+class RecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
+
+    override fun providerVMClass(): Class<EmptyViewModel>? = EmptyViewModel::class.java
 
     private lateinit var fileName: String
 
-
-    override fun createPresenter(): EmptyPresenterImpl {
-        return EmptyPresenterImpl(this)
-    }
 
     override fun preSetContentView() {
         super.preSetContentView()

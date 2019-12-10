@@ -70,4 +70,6 @@ class WaveSurfaceView(context: Context, attrs: AttributeSet) : SurfaceView(conte
     }
 
 
+
+
 }

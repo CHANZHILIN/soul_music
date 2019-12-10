@@ -20,11 +20,9 @@ import android.util.Log
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.kotlin_baselib.api.Constants
-import com.kotlin_baselib.base.BaseActivity
-import com.kotlin_baselib.base.EmptyModelImpl
-import com.kotlin_baselib.base.EmptyPresenterImpl
-import com.kotlin_baselib.base.EmptyView
 import com.kotlin_baselib.floatview.FloatingMusicService
+import com.kotlin_baselib.mvvmbase.BaseViewModelActivity
+import com.kotlin_baselib.mvvmbase.EmptyViewModel
 import com.kotlin_baselib.utils.*
 import com.soul_music.R
 import com.soul_music.myInterface.ScrollViewListener
@@ -37,7 +35,13 @@ import java.io.File
 import java.util.*
 
 @Route(path = Constants.NRECORD_AUDIO_ACTIVITY_PATH)
-class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresenterImpl>(), EmptyView {
+class NRecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
+
+    override fun providerVMClass(): Class<EmptyViewModel>? = EmptyViewModel::class.java
+
+    override fun getResId(): Int {
+        return R.layout.activity_nrecord_audio
+    }
 
     private var positions: String = ""
     private var swidth: Int = 0
@@ -68,7 +72,10 @@ class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresen
 
     private val maxRecordTime = 10 * 60 * 60    //10分钟
 
-    private val mFileName = "audio_soul_${DateUtil.parseToString(System.currentTimeMillis(), DateUtil.yyyyMMddHHmmss)}"//文件名
+    private val mFileName = "audio_soul_${DateUtil.parseToString(
+        System.currentTimeMillis(),
+        DateUtil.yyyyMMddHHmmss
+    )}"//文件名
     private var totalTime = 0
 
 
@@ -100,15 +107,6 @@ class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresen
     }
 
 
-    override fun createPresenter(): EmptyPresenterImpl {
-        return EmptyPresenterImpl(this)
-    }
-
-
-    override fun getResId(): Int {
-        return R.layout.activity_nrecord_audio
-    }
-
     override fun initData() {
         setTitle("录音")
         val metrics = DisplayMetrics()
@@ -130,12 +128,23 @@ class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresen
     override fun initListener() {
         observable_scrollView.setOnTouchListener { v, event -> true }
         observable_scrollView.setScrollViewListener(object : ScrollViewListener {
-            override fun onScrollChanged(scrollView: ObservableScrollView, x: Int, y: Int, oldx: Int, oldy: Int, isByUser: Boolean) {
+            override fun onScrollChanged(
+                scrollView: ObservableScrollView,
+                x: Int,
+                y: Int,
+                oldx: Int,
+                oldy: Int,
+                isByUser: Boolean
+            ) {
                 currentX = x /*获取当前滑动的距离*/
             }
         })
         btn_record_on.setOnClickListener {
-            if (PermissionUtils.isGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO)) {
+            if (PermissionUtils.isGranted(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.RECORD_AUDIO
+                )
+            ) {
                 if (waveCanvas == null || !waveCanvas!!.isRecording) {  //不在录音状态
                     currentStatus = STATUS_START       //更改为录音开始状态
                     mTimeCounter = 0           //录音时间从0开始
@@ -184,24 +193,27 @@ class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresen
                     }
                 }
             } else {
-                PermissionUtils.permission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO)
-                        .callBack(object : PermissionUtils.PermissionCallBack {
-                            override fun onGranted(permissionUtils: PermissionUtils) {
-                                SnackbarUtil.ShortSnackbar(
-                                        window.decorView,
-                                        "已授权",
-                                        SnackbarUtil.WARNING
-                                ).show()
-                            }
+                PermissionUtils.permission(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.RECORD_AUDIO
+                )
+                    .callBack(object : PermissionUtils.PermissionCallBack {
+                        override fun onGranted(permissionUtils: PermissionUtils) {
+                            SnackbarUtil.ShortSnackbar(
+                                wave_form_view,
+                                "已授权",
+                                SnackbarUtil.WARNING
+                            ).show()
+                        }
 
-                            override fun onDenied(permissionUtils: PermissionUtils) {
-                                SnackbarUtil.ShortSnackbar(
-                                        window.decorView,
-                                        "拒绝了权限，将无法使用录音功能",
-                                        SnackbarUtil.WARNING
-                                ).show()
-                            }
-                        }).request()
+                        override fun onDenied(permissionUtils: PermissionUtils) {
+                            SnackbarUtil.ShortSnackbar(
+                                wave_form_view,
+                                "拒绝了权限，将无法使用录音功能",
+                                SnackbarUtil.WARNING
+                            ).show()
+                        }
+                    }).request()
             }
 
 
@@ -335,17 +347,30 @@ class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresen
      */
     private fun initAudio() {
         timeFlag.clear()    //清空标志
-        recordBufSize = AudioRecord.getMinBufferSize(FREQUENCY,
-                CHANNELCONGIFIGURATION, AUDIOENCODING)//设置录音缓冲区(一般为20ms,1280)
-        audioRecord = AudioRecord(AUDIO_SOURCE, // 指定音频来源，这里为麦克风
-                FREQUENCY, // 16000HZ采样频率
-                CHANNELCONGIFIGURATION, // 录制通道
-                AUDIO_SOURCE, // 录制编码格式
-                recordBufSize)
+        recordBufSize = AudioRecord.getMinBufferSize(
+            FREQUENCY,
+            CHANNELCONGIFIGURATION, AUDIOENCODING
+        )//设置录音缓冲区(一般为20ms,1280)
+        audioRecord = AudioRecord(
+            AUDIO_SOURCE, // 指定音频来源，这里为麦克风
+            FREQUENCY, // 16000HZ采样频率
+            CHANNELCONGIFIGURATION, // 录制通道
+            AUDIO_SOURCE, // 录制编码格式
+            recordBufSize
+        )
 
         waveCanvas = WaveCanvas()
         waveCanvas!!.baseLine = wave_surface_view.height / 2    //中间线
-        waveCanvas!!.Start(audioRecord!!, recordBufSize, wave_surface_view, mFileName, SdCardUtil.DEFAULT_RECORD_PATH, Handler.Callback { true }, swidth / 2, this)
+        waveCanvas!!.Start(
+            audioRecord!!,
+            recordBufSize,
+            wave_surface_view,
+            mFileName,
+            SdCardUtil.DEFAULT_RECORD_PATH,
+            Handler.Callback { true },
+            swidth / 2,
+            this
+        )
     }
 
     /**
@@ -476,20 +501,25 @@ class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresen
             startFloatMusicService(mFileName + ".pcm")
         } else {  //没有悬浮窗权限
             AlertDialogUtil.getInstance(mContext).showAlertDialog("播放录音界面需要悬浮窗权限，请授权", "取消", "授权",
-                    DialogInterface.OnClickListener { dialog, which ->
-                        dialog.dismiss()
-                    },
-                    DialogInterface.OnClickListener { dialog, which ->
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //6.0以上
-                            startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")), 1002)
-                        } else {        //6.0以下
-                            val intent = Intent()
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            intent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS")
-                            intent.setData(Uri.fromParts("package", getPackageName(), null))
-                            startActivityForResult(intent, 1002)
-                        }
-                    })
+                DialogInterface.OnClickListener { dialog, which ->
+                    dialog.dismiss()
+                },
+                DialogInterface.OnClickListener { dialog, which ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //6.0以上
+                        startActivityForResult(
+                            Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:$packageName")
+                            ), 1002
+                        )
+                    } else {        //6.0以下
+                        val intent = Intent()
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        intent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS")
+                        intent.setData(Uri.fromParts("package", getPackageName(), null))
+                        startActivityForResult(intent, 1002)
+                    }
+                })
         }
     }
 
@@ -525,8 +555,18 @@ class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresen
             val manager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
             try {
                 val clazz = AppOpsManager::class.java
-                val method = clazz.getDeclaredMethod("checkOp", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType, String::class.java)
-                return AppOpsManager.MODE_ALLOWED == method.invoke(manager, op, Binder.getCallingUid(), context.getPackageName()) as Int
+                val method = clazz.getDeclaredMethod(
+                    "checkOp",
+                    Int::class.javaPrimitiveType,
+                    Int::class.javaPrimitiveType,
+                    String::class.java
+                )
+                return AppOpsManager.MODE_ALLOWED == method.invoke(
+                    manager,
+                    op,
+                    Binder.getCallingUid(),
+                    context.getPackageName()
+                ) as Int
             } catch (e: Exception) {
                 Log.e(Constants.DEBUG_TAG, Log.getStackTraceString(e))
             }
@@ -543,7 +583,11 @@ class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresen
             1002 -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       //6.0以上
                     if (!Settings.canDrawOverlays(this)) {  //拒绝授权
-                        SnackbarUtil.ShortSnackbar(window.decorView, "悬浮窗口权限未授权，无法使用播放功能", SnackbarUtil.WARNING).show()
+                        SnackbarUtil.ShortSnackbar(
+                            wave_form_view,
+                            "悬浮窗口权限未授权，无法使用播放功能",
+                            SnackbarUtil.WARNING
+                        ).show()
                     } else {
                         startFloatMusicService(mFileName + ".pcm")
                     }
@@ -551,7 +595,11 @@ class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresen
                     if (checkOp(mContext, 24)) {  //OP_SYSTEM_ALERT_WINDOW = 24;
                         startFloatMusicService(mFileName + ".pcm")
                     } else {//拒绝授权
-                        SnackbarUtil.ShortSnackbar(window.decorView, "悬浮窗口权限未授权，无法使用播放功能", SnackbarUtil.WARNING).show()
+                        SnackbarUtil.ShortSnackbar(
+                            wave_form_view,
+                            "悬浮窗口权限未授权，无法使用播放功能",
+                            SnackbarUtil.WARNING
+                        ).show()
                     }
                 }
             }
@@ -574,10 +622,12 @@ class NRecordAudioActivity : BaseActivity<EmptyView, EmptyModelImpl, EmptyPresen
                     positions = positions + timeFlag[i]
                 }
             }
-            val edit = sp.edit()
-            edit.putString("flags", positions)
-            edit.putInt("size", timeFlag.size)
-            edit.commit()
+            sp.edit().apply {
+                putString("flags", positions)
+                putInt("size", timeFlag.size)
+                apply()
+            }
+
         }
 
 
