@@ -3,15 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/fragment_text"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/fragment_music_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/float_action_button"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="30dp" />-->
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
 </FrameLayout>
