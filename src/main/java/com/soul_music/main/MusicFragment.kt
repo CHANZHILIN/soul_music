@@ -1,23 +1,20 @@
-package com.soul_music
+package com.soul_music.main
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.util.Log
 import android.view.animation.LinearInterpolator
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kotlin_baselib.api.Constants
 import com.kotlin_baselib.audio.AudioTrackManager
 import com.kotlin_baselib.base.BaseViewModelFragment
-import com.kotlin_baselib.base.EmptyViewModel
-import com.kotlin_baselib.recyclerview.SingleAdapter
 import com.kotlin_baselib.recyclerview.setSingleUp
-import com.kotlin_baselib.utils.SdCardUtil
+import com.soul_music.R
 import com.soul_music.entity.MusicEntity
 import com.soul_picture.decoration.LinearLayoutDividerItemDecoration
 import kotlinx.android.synthetic.main.fragment_music.*
 import kotlinx.android.synthetic.main.layout_item_music.view.*
-import kotlin.concurrent.thread
 
 
 private const val ARG_PARAM = "param1"
@@ -28,15 +25,14 @@ private const val ARG_PARAM = "param1"
  *  Package:com.soul_music
  *  Introduce: 音乐Fragment
  **/
-class MusicFragment : BaseViewModelFragment<EmptyViewModel>() {
+class MusicFragment : BaseViewModelFragment<MusicViewModel>() {
 
 
     override fun getResId(): Int = R.layout.fragment_music
 
-    private lateinit var fileData: MutableList<String>
     private var param1: String? = null
 
-    override fun providerVMClass(): Class<EmptyViewModel>? = EmptyViewModel::class.java
+    override fun providerVMClass(): Class<MusicViewModel>? = MusicViewModel::class.java
 
     var rotate: ObjectAnimator? = null
     var musicData: MutableList<MusicEntity> = ArrayList<MusicEntity>()
@@ -75,13 +71,6 @@ class MusicFragment : BaseViewModelFragment<EmptyViewModel>() {
         }
 
 
-        fileData = SdCardUtil.getFilesAllName(SdCardUtil.DEFAULT_RECORD_PATH)
-
-
-        for (fileDatum in fileData) {
-            musicData.add(MusicEntity(fileDatum))
-        }
-
         fragment_music_recyclerview.setSingleUp(
             musicData,
             R.layout.layout_item_music,
@@ -110,22 +99,32 @@ class MusicFragment : BaseViewModelFragment<EmptyViewModel>() {
             )
         )
 
+        viewModel.getMusicListData().observe(this, Observer {
+            it?.run {
+                musicData.addAll(it)
+                fragment_music_recyclerview.adapter!!.notifyDataSetChanged()
+            }
+        })
+
     }
 
     override fun initListener() {
 
         fragment_music_refresh_layout.setOnRefreshListener {
-            if (fileData.size >= 0) {
-                fileData.clear()
+            if (musicData.size >= 0) {
                 musicData.clear()
             }
-            fileData = SdCardUtil.getFilesAllName(SdCardUtil.DEFAULT_RECORD_PATH)  //重新获取一次文件
-            for (fileDatum in fileData) {
-                musicData.add(MusicEntity(fileDatum))
-            }
-            fragment_music_recyclerview.adapter!!.notifyDataSetChanged()
+            val musicViewModel = MusicViewModel()
+            musicViewModel.getMusicListData().observe(this, Observer {
+                it?.run {
+                    musicData.addAll(it)
+                    fragment_music_recyclerview.adapter!!.notifyDataSetChanged()
+                    fragment_music_refresh_layout.isRefreshing = false
+                    lifecycle.removeObserver(musicViewModel)
+                }
+            })
 
-            fragment_music_refresh_layout.isRefreshing = false
+
         }
 
         fragment_music_play.setOnClickListener {
