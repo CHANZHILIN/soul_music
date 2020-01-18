@@ -17,7 +17,7 @@ class MusicRepository : BaseRepository() {
     suspend fun getMusicData(): MutableList<MusicEntity> = requestLocal {
         val fileData = SdCardUtil.getFilesAllName(SdCardUtil.DEFAULT_RECORD_PATH)
         val musicData = ArrayList<MusicEntity>()
-        for (fileDatum in fileData) {   //封装实体类，加入随机高度，解决滑动过程中位置变换的问题
+        for (fileDatum in fileData) {
             musicData.add(MusicEntity(fileDatum))
         }
         musicData
