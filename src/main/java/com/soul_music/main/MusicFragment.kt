@@ -9,7 +9,8 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.kotlin_baselib.api.Constants
 import com.kotlin_baselib.audio.AudioTrackManager
 import com.kotlin_baselib.base.BaseViewModelFragment
-import com.kotlin_baselib.recyclerview.setSingleUp
+import com.kotlin_baselib.recyclerview.SingleAdapter
+import com.kotlin_baselib.recyclerview.setSingleItemUp
 import com.soul_music.R
 import com.soul_music.entity.MusicEntity
 import com.soul_picture.decoration.LinearLayoutDividerItemDecoration
@@ -37,6 +38,8 @@ class MusicFragment : BaseViewModelFragment<MusicViewModel>() {
     var rotate: ObjectAnimator? = null
     var musicData: MutableList<MusicEntity> = ArrayList<MusicEntity>()
 
+    private var musicAdapter: SingleAdapter<MusicEntity>? = null
+
     var currentPlayPosition = 0        //播放的音频的位置
 
 
@@ -62,25 +65,23 @@ class MusicFragment : BaseViewModelFragment<MusicViewModel>() {
     override fun initData() {
 
         //播放音频时候动画
-        rotate = ObjectAnimator.ofFloat(fragment_music_circleImageView, "rotation", 0f, 360f)
-        rotate!!.apply {
-            duration = 5000
-            interpolator = LinearInterpolator()
-            repeatCount = -1
-            repeatMode = ObjectAnimator.RESTART
-        }
+        rotate =
+            ObjectAnimator.ofFloat(fragment_music_circleImageView, "rotation", 0f, 360f).apply {
+                duration = 5000
+                interpolator = LinearInterpolator()
+                repeatCount = -1
+                repeatMode = ObjectAnimator.RESTART
+            }
 
 
-        fragment_music_recyclerview.setSingleUp(
+        musicAdapter = fragment_music_recyclerview.setSingleItemUp(
             musicData,
             R.layout.layout_item_music,
-            LinearLayoutManager(mContext),
-            { holder, item ->
-
+            { _, holder, item ->
                 holder.itemView.item_music_tv_audio_name.text = item.path.split("/").last()
-
             },
-            {
+            LinearLayoutManager(mContext),
+            { position, it ->
                 /*     SnackbarUtil.ShortSnackbar(
                          fragment_picture_recyclerview,
                          "点击${it.picturePath}！",
@@ -101,8 +102,7 @@ class MusicFragment : BaseViewModelFragment<MusicViewModel>() {
 
         viewModel.getMusicListData().observe(this, Observer {
             it?.run {
-                musicData.addAll(it)
-                fragment_music_recyclerview.adapter!!.notifyDataSetChanged()
+                musicAdapter?.replaceData(this)
             }
         })
 
@@ -117,8 +117,7 @@ class MusicFragment : BaseViewModelFragment<MusicViewModel>() {
             val musicViewModel = MusicViewModel()
             musicViewModel.getMusicListData().observe(this, Observer {
                 it?.run {
-                    musicData.addAll(it)
-                    fragment_music_recyclerview.adapter!!.notifyDataSetChanged()
+                    musicAdapter?.replaceData(this)
                     fragment_music_refresh_layout.isRefreshing = false
                     lifecycle.removeObserver(musicViewModel)
                 }
@@ -128,7 +127,7 @@ class MusicFragment : BaseViewModelFragment<MusicViewModel>() {
         }
 
         fragment_music_play.setOnClickListener {
-            startPlayMusic(musicData.get(currentPlayPosition).path)
+            startPlayMusic(musicData[currentPlayPosition].path)
         }
         fragment_music_pause.setOnClickListener {
             AudioTrackManager.getInstance().stopPlay()
@@ -141,15 +140,15 @@ class MusicFragment : BaseViewModelFragment<MusicViewModel>() {
 
     }
 
-    fun startPlayMusic(path: String) {
-        fragment_music_tv_audio_name.text = path
+    private fun startPlayMusic(path: String) {
+        fragment_music_tv_audio_name.text = path.split("/").last()
         for (i in 0 until musicData.size) {
-            if (musicData.get(i).path.equals(path)) currentPlayPosition = i
+            if (musicData[i].path == path) currentPlayPosition = i
         }
         AudioTrackManager.getInstance().startPlay(path)
         startPlayAnimation()
         AudioTrackManager.getInstance()
-            .setOnAudioStatusChangeListener(object : AudioTrackManager.onAudioStatusChange {
+            .setOnAudioStatusChangeListener(object : AudioTrackManager.OnAudioStateChange {
                 override fun onPlay() {
 //                    startPlayAnimation()
                 }
@@ -164,17 +163,20 @@ class MusicFragment : BaseViewModelFragment<MusicViewModel>() {
     }
 
 
-    fun startPlayAnimation() {
-        if (rotate!!.isStarted) {
-            rotate!!.resume()
-        } else {
-            rotate!!.start()
+    private fun startPlayAnimation() {
+        if (AudioTrackManager.getInstance().isPlaying()) return
+        activity?.runOnUiThread {
+            if (rotate?.isStarted == true) {
+                rotate?.resume()
+            } else {
+                rotate?.start()
+            }
         }
     }
 
     fun stopPlayAnimation() {
-        activity!!.runOnUiThread {
-            rotate!!.pause()
+        activity?.runOnUiThread {
+            rotate?.pause()
 //            if (currentPlayPosition == musicData.size - 1) currentPlayPosition = 0 else currentPlayPosition++
 //            startPlayMusic(musicData.get(currentPlayPosition).path)
         }
