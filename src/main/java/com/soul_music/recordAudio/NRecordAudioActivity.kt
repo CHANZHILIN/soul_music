@@ -199,18 +199,18 @@ class NRecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
                 )
                     .callBack(object : PermissionUtils.PermissionCallBack {
                         override fun onGranted(permissionUtils: PermissionUtils) {
-                            SnackbarUtil.ShortSnackbar(
+                            SnackBarUtil.shortSnackBar(
                                 wave_form_view,
                                 "已授权",
-                                SnackbarUtil.WARNING
+                                SnackBarUtil.WARNING
                             ).show()
                         }
 
                         override fun onDenied(permissionUtils: PermissionUtils) {
-                            SnackbarUtil.ShortSnackbar(
+                            SnackBarUtil.shortSnackBar(
                                 wave_form_view,
                                 "拒绝了权限，将无法使用录音功能",
-                                SnackbarUtil.WARNING
+                                SnackBarUtil.WARNING
                             ).show()
                         }
                     }).request()
@@ -583,10 +583,10 @@ class NRecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
             1002 -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       //6.0以上
                     if (!Settings.canDrawOverlays(this)) {  //拒绝授权
-                        SnackbarUtil.ShortSnackbar(
+                        SnackBarUtil.shortSnackBar(
                             wave_form_view,
                             "悬浮窗口权限未授权，无法使用播放功能",
-                            SnackbarUtil.WARNING
+                            SnackBarUtil.WARNING
                         ).show()
                     } else {
                         startFloatMusicService(mFileName + ".pcm")
@@ -595,10 +595,10 @@ class NRecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
                     if (checkOp(mContext, 24)) {  //OP_SYSTEM_ALERT_WINDOW = 24;
                         startFloatMusicService(mFileName + ".pcm")
                     } else {//拒绝授权
-                        SnackbarUtil.ShortSnackbar(
+                        SnackBarUtil.shortSnackBar(
                             wave_form_view,
                             "悬浮窗口权限未授权，无法使用播放功能",
-                            SnackbarUtil.WARNING
+                            SnackBarUtil.WARNING
                         ).show()
                     }
                 }

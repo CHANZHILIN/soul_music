@@ -96,7 +96,7 @@ class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewLis
                 timeSize()
             }
             10 -> {
-                SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "编辑成功！", SnackbarUtil.CONFIRM)
+                SnackBarUtil.shortSnackBar(btn_edit_audio_clip, "编辑成功！", SnackBarUtil.CONFIRM)
                     .show()
 //                val absolutePath = outFile?.getAbsolutePath()
                 val file_pcm = File(outFile?.getAbsolutePath()?.replace(".wav", ".pcm"))
@@ -216,13 +216,13 @@ class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewLis
         dialog.setPositiveButton("保存", DialogInterface.OnClickListener { dialog1, which ->
             val saveName = editText.text.toString().trim()
             if (TextUtils.isEmpty(saveName)) {
-                SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "音频文件名称不能为空！", SnackbarUtil.WARNING)
+                SnackBarUtil.shortSnackBar(btn_edit_audio_clip, "音频文件名称不能为空！", SnackBarUtil.WARNING)
                     .show()
                 return@OnClickListener
             }
             saveAs(saveName)
             dialog1.dismiss()
-            SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "保存成功", SnackbarUtil.CONFIRM).show()
+            SnackBarUtil.shortSnackBar(btn_edit_audio_clip, "保存成功", SnackBarUtil.CONFIRM).show()
             Handler().postDelayed({ finish() }, 2000)
 
         })
@@ -239,7 +239,7 @@ class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewLis
             newNameFile_wav = File(SdCardUtil.DEFAULT_RECORD_PATH + newFileName + ".wav")
             oldWav.renameTo(newNameFile_wav)    //更换名字
         } else {
-            SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "你操作的文件不存在！", SnackbarUtil.WARNING)
+            SnackBarUtil.shortSnackBar(btn_edit_audio_clip, "你操作的文件不存在！", SnackBarUtil.WARNING)
                 .show()
         }
         //保存视频录制的总时长
@@ -293,7 +293,7 @@ class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewLis
         if (null != clipPosition && (clipPosition as MutableList<FloatArray>).size > 0) {
             onSaveClipFile()
         } else {
-            SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "请在下方选择要删除的音频段!", SnackbarUtil.ALERT)
+            SnackBarUtil.shortSnackBar(btn_edit_audio_clip, "请在下方选择要删除的音频段!", SnackBarUtil.ALERT)
                 .show()
         }
 
@@ -517,7 +517,7 @@ class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewLis
                         mPlayer = null
                     }
                 } catch (e: java.io.IOException) {
-                    SnackbarUtil.ShortSnackbar(btn_edit_audio_clip, "文件播放出错！", SnackbarUtil.WARNING)
+                    SnackBarUtil.shortSnackBar(btn_edit_audio_clip, "文件播放出错！", SnackBarUtil.WARNING)
                         .show()
 //                    Toast.makeText(this, "文件播放出错！", Toast.LENGTH_SHORT).show()
                 }

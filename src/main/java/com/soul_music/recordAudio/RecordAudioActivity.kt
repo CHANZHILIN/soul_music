@@ -21,7 +21,7 @@ import com.kotlin_baselib.base.BaseViewModelActivity
 import com.kotlin_baselib.base.EmptyViewModel
 import com.kotlin_baselib.utils.AlertDialogUtil
 import com.kotlin_baselib.utils.PermissionUtils
-import com.kotlin_baselib.utils.SnackbarUtil
+import com.kotlin_baselib.utils.SnackBarUtil
 import com.soul_music.R
 import kotlinx.android.synthetic.main.activity_record_audio.*
 
@@ -97,18 +97,18 @@ class RecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
             PermissionUtils.permission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO/*,Manifest.permission.SYSTEM_ALERT_WINDOW*/)
                     .callBack(object : PermissionUtils.PermissionCallBack {
                         override fun onGranted(permissionUtils: PermissionUtils) {
-                            SnackbarUtil.ShortSnackbar(
+                            SnackBarUtil.shortSnackBar(
                                     window.decorView,
                                     "已授权",
-                                    SnackbarUtil.WARNING
+                                    SnackBarUtil.WARNING
                             ).show()
                         }
 
                         override fun onDenied(permissionUtils: PermissionUtils) {
-                            SnackbarUtil.ShortSnackbar(
+                            SnackBarUtil.shortSnackBar(
                                     window.decorView,
                                     "拒绝了权限，将无法使用录音功能",
-                                    SnackbarUtil.WARNING
+                                    SnackBarUtil.WARNING
                             ).show()
                         }
                     }).request()
@@ -197,7 +197,7 @@ class RecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
             1002 -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       //6.0以上
                     if (!Settings.canDrawOverlays(this)) {  //拒绝授权
-                        SnackbarUtil.ShortSnackbar(window.decorView, "悬浮窗口权限未授权，无法使用播放功能", SnackbarUtil.WARNING).show()
+                        SnackBarUtil.shortSnackBar(window.decorView, "悬浮窗口权限未授权，无法使用播放功能", SnackBarUtil.WARNING).show()
                     } else {
                         startFloatMusicService(fileName)
                     }
@@ -205,7 +205,7 @@ class RecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
                     if (checkOp(mContext, 24)) {  //OP_SYSTEM_ALERT_WINDOW = 24;
                         startFloatMusicService(fileName)
                     } else {//拒绝授权
-                        SnackbarUtil.ShortSnackbar(window.decorView, "悬浮窗口权限未授权，无法使用播放功能", SnackbarUtil.WARNING).show()
+                        SnackBarUtil.shortSnackBar(window.decorView, "悬浮窗口权限未授权，无法使用播放功能", SnackBarUtil.WARNING).show()
                     }
                 }
             }

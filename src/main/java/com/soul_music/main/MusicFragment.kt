@@ -82,10 +82,10 @@ class MusicFragment : BaseViewModelFragment<MusicViewModel>() {
             },
             LinearLayoutManager(mContext),
             { position, it ->
-                /*     SnackbarUtil.ShortSnackbar(
+                /*     SnackBarUtil.ShortSnackbar(
                          fragment_picture_recyclerview,
                          "点击${it.picturePath}！",
-                         SnackbarUtil.CONFIRM
+                         SnackBarUtil.CONFIRM
                      )
                          .show()*/
                 startPlayMusic(it.path)
