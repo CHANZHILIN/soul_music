@@ -16,9 +16,9 @@ import android.view.WindowManager
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.kotlin_baselib.api.Constants
 import com.kotlin_baselib.audio.AudioRecordManager
-import com.kotlin_baselib.floatview.FloatingMusicService
 import com.kotlin_baselib.base.BaseViewModelActivity
 import com.kotlin_baselib.base.EmptyViewModel
+import com.kotlin_baselib.floatview.FloatingMusicService
 import com.kotlin_baselib.utils.AlertDialogUtil
 import com.kotlin_baselib.utils.PermissionUtils
 import com.kotlin_baselib.utils.SnackBarUtil
@@ -70,48 +70,56 @@ class RecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
      * 开始录音
      */
     private fun startRecord() {
-        if (PermissionUtils.isGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO)) {
+        if (PermissionUtils.isGranted(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO
+            )
+        ) {
             //            fileName = "soul_audio_" + DateUtil.parseToString(System.currentTimeMillis(), DateUtil.yyyyMMddHHmmss) + ".pcm"
             fileName = "soul_audio.pcm"
             AudioRecordManager.getInstance().startRecord(fileName)
-            AudioRecordManager.getInstance().setOnRecordStatusChangeListener(object : AudioRecordManager.onRecordStatusChange {
-                override fun onRecordStart() {
-                }
+            AudioRecordManager.getInstance()
+                .setOnRecordStatusChangeListener(object : AudioRecordManager.onRecordStatusChange {
+                    override fun onRecordStart() {
+                    }
 
-                override fun onVolume(volume: Double) {
-                    runOnUiThread { record_line_view.setMaxHeight(volume * 3) }
+                    override fun onVolume(volume: Double) {
+                        runOnUiThread { record_line_view.setMaxHeight(volume * 3) }
 
-                }
+                    }
 
-                override fun onRecording(time: String) {
-                    runOnUiThread { tv_record_duration.setText(time) }
+                    override fun onRecording(time: String) {
+                        runOnUiThread { tv_record_duration.setText(time) }
 
-                }
+                    }
 
-                override fun onRecordStop() {
-                    runOnUiThread { startFloatMusicService() }
+                    override fun onRecordStop() {
+                        runOnUiThread { startFloatMusicService() }
 
-                }
-            })
+                    }
+                })
         } else {
-            PermissionUtils.permission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO/*,Manifest.permission.SYSTEM_ALERT_WINDOW*/)
-                    .callBack(object : PermissionUtils.PermissionCallBack {
-                        override fun onGranted(permissionUtils: PermissionUtils) {
-                            SnackBarUtil.shortSnackBar(
-                                    window.decorView,
-                                    "已授权",
-                                    SnackBarUtil.WARNING
-                            ).show()
-                        }
+            PermissionUtils.permission(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO/*,Manifest.permission.SYSTEM_ALERT_WINDOW*/
+            )
+                .callBack(object : PermissionUtils.PermissionCallBack {
+                    override fun onGranted(permissionUtils: PermissionUtils) {
+                        SnackBarUtil.shortSnackBar(
+                            window.decorView,
+                            "已授权",
+                            SnackBarUtil.WARNING
+                        ).show()
+                    }
 
-                        override fun onDenied(permissionUtils: PermissionUtils) {
-                            SnackBarUtil.shortSnackBar(
-                                    window.decorView,
-                                    "拒绝了权限，将无法使用录音功能",
-                                    SnackBarUtil.WARNING
-                            ).show()
-                        }
-                    }).request()
+                    override fun onDenied(permissionUtils: PermissionUtils) {
+                        SnackBarUtil.shortSnackBar(
+                            window.decorView,
+                            "拒绝了权限，将无法使用录音功能",
+                            SnackBarUtil.WARNING
+                        ).show()
+                    }
+                }).request()
         }
 
     }
@@ -127,21 +135,26 @@ class RecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
         if (checkFloatWindowPermission(mContext)) {  //有悬浮窗权限，直接开启悬浮窗
             startFloatMusicService(fileName)
         } else {  //没有悬浮窗权限
-            AlertDialogUtil.getInstance(mContext).showAlertDialog("播放录音界面需要悬浮窗权限，请授权", "取消", "授权",
-                    DialogInterface.OnClickListener { dialog, which ->
-                        dialog.dismiss()
-                    },
-                    DialogInterface.OnClickListener { dialog, which ->
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //6.0以上
-                            startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")), 1002)
-                        } else {        //6.0以下
-                            val intent = Intent()
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            intent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS")
-                            intent.setData(Uri.fromParts("package", getPackageName(), null))
-                            startActivityForResult(intent, 1002)
-                        }
-                    })
+            AlertDialogUtil.showAlertDialog(mContext, "播放录音界面需要悬浮窗权限，请授权", "取消", "授权",
+                DialogInterface.OnClickListener { dialog, which ->
+                    dialog.dismiss()
+                },
+                DialogInterface.OnClickListener { dialog, which ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //6.0以上
+                        startActivityForResult(
+                            Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:$packageName")
+                            ), 1002
+                        )
+                    } else {        //6.0以下
+                        val intent = Intent()
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        intent.action = "android.settings.APPLICATION_DETAILS_SETTINGS"
+                        intent.data = Uri.fromParts("package", packageName, null)
+                        startActivityForResult(intent, 1002)
+                    }
+                })
         }
     }
 
@@ -178,8 +191,18 @@ class RecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
             val manager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
             try {
                 val clazz = AppOpsManager::class.java
-                val method = clazz.getDeclaredMethod("checkOp", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType, String::class.java)
-                return AppOpsManager.MODE_ALLOWED == method.invoke(manager, op, Binder.getCallingUid(), context.getPackageName()) as Int
+                val method = clazz.getDeclaredMethod(
+                    "checkOp",
+                    Int::class.javaPrimitiveType,
+                    Int::class.javaPrimitiveType,
+                    String::class.java
+                )
+                return AppOpsManager.MODE_ALLOWED == method.invoke(
+                    manager,
+                    op,
+                    Binder.getCallingUid(),
+                    context.getPackageName()
+                ) as Int
             } catch (e: Exception) {
                 Log.e(Constants.DEBUG_TAG, Log.getStackTraceString(e))
             }
@@ -197,7 +220,11 @@ class RecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
             1002 -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       //6.0以上
                     if (!Settings.canDrawOverlays(this)) {  //拒绝授权
-                        SnackBarUtil.shortSnackBar(window.decorView, "悬浮窗口权限未授权，无法使用播放功能", SnackBarUtil.WARNING).show()
+                        SnackBarUtil.shortSnackBar(
+                            window.decorView,
+                            "悬浮窗口权限未授权，无法使用播放功能",
+                            SnackBarUtil.WARNING
+                        ).show()
                     } else {
                         startFloatMusicService(fileName)
                     }
@@ -205,7 +232,11 @@ class RecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
                     if (checkOp(mContext, 24)) {  //OP_SYSTEM_ALERT_WINDOW = 24;
                         startFloatMusicService(fileName)
                     } else {//拒绝授权
-                        SnackBarUtil.shortSnackBar(window.decorView, "悬浮窗口权限未授权，无法使用播放功能", SnackBarUtil.WARNING).show()
+                        SnackBarUtil.shortSnackBar(
+                            window.decorView,
+                            "悬浮窗口权限未授权，无法使用播放功能",
+                            SnackBarUtil.WARNING
+                        ).show()
                     }
                 }
             }

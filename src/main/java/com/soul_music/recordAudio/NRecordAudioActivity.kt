@@ -500,7 +500,7 @@ class NRecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
         if (checkFloatWindowPermission(mContext)) {  //有悬浮窗权限，直接开启悬浮窗
             startFloatMusicService(mFileName + ".pcm")
         } else {  //没有悬浮窗权限
-            AlertDialogUtil.getInstance(mContext).showAlertDialog("播放录音界面需要悬浮窗权限，请授权", "取消", "授权",
+            AlertDialogUtil.showAlertDialog(mContext,"播放录音界面需要悬浮窗权限，请授权", "取消", "授权",
                 DialogInterface.OnClickListener { dialog, which ->
                     dialog.dismiss()
                 },

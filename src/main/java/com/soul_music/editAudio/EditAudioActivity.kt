@@ -124,7 +124,7 @@ class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewLis
      * 删除所有音频
      */
     private fun deleteAll() {
-        AlertDialogUtil.getInstance(mContext).showAlertDialog("确定删除所有音频吗？", "取消", "确认",
+        AlertDialogUtil.showAlertDialog(mContext,"确定删除所有音频吗？", "取消", "确认",
             DialogInterface.OnClickListener { dialog, which ->
                 dialog.dismiss()
             },
