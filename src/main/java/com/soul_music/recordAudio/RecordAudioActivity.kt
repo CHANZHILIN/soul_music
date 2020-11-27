@@ -32,14 +32,14 @@ class RecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
     override fun providerVMClass(): Class<EmptyViewModel>? = EmptyViewModel::class.java
 
     private lateinit var fileName: String
+    override fun isTransparentPage(): Boolean  = true
 
-
-    override fun preSetContentView() {
+/*    override fun preSetContentView() {
         super.preSetContentView()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         }
-    }
+    }*/
 
     override fun getResId(): Int {
         return R.layout.activity_record_audio
