@@ -17,7 +17,7 @@ import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kotlin_baselib.api.Constants
-import com.kotlin_baselib.base.BaseViewModelActivity
+import com.kotlin_baselib.base.BaseToolbarViewModelActivity
 import com.kotlin_baselib.base.EmptyViewModel
 import com.kotlin_baselib.utils.*
 import com.soul_music.R
@@ -32,10 +32,11 @@ import java.io.File
 import java.util.*
 
 @Route(path = Constants.EDIT_AUDIO_ACTIVITY_PATH)
-class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewListener {
+class EditAudioActivity : BaseToolbarViewModelActivity<EmptyViewModel>(), ScrollViewListener {
 
     override fun providerVMClass(): Class<EmptyViewModel>? = EmptyViewModel::class.java
 
+    override fun setToolbarTitle(): String? = "编辑音频"
 
     override fun getResId(): Int {
         return R.layout.activity_edit_audio
@@ -124,7 +125,7 @@ class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewLis
      * 删除所有音频
      */
     private fun deleteAll() {
-        AlertDialogUtil.showAlertDialog(mContext,"确定删除所有音频吗？", "取消", "确认",
+        AlertDialogUtil.showAlertDialog(mContext, "确定删除所有音频吗？", "取消", "确认",
             DialogInterface.OnClickListener { dialog, which ->
                 dialog.dismiss()
             },
@@ -275,7 +276,7 @@ class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewLis
                     }
                 }
             }
-         sp.edit().apply {
+            sp.edit().apply {
                 clear()
                 putString("flags", positions)
                 putInt("size", flagPositions.size)
@@ -540,6 +541,7 @@ class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewLis
     internal var mLoadSoundFileThread: Thread? = null
     internal var mSoundFile: SoundFile? = null
     internal var audioTrackPlayer: AudioTrackPlayer? = null
+
     /**
      * 载入wav文件显示波形
      */
@@ -592,6 +594,7 @@ class EditAudioActivity : BaseViewModelActivity<EmptyViewModel>(), ScrollViewLis
 
 
     private var totalLength: Int = 0
+
     /**
      * 添加时间线
      */

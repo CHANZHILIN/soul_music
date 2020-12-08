@@ -20,6 +20,7 @@ import android.util.Log
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.kotlin_baselib.api.Constants
+import com.kotlin_baselib.base.BaseToolbarViewModelActivity
 import com.kotlin_baselib.floatview.FloatingMusicService
 import com.kotlin_baselib.base.BaseViewModelActivity
 import com.kotlin_baselib.base.EmptyViewModel
@@ -35,9 +36,11 @@ import java.io.File
 import java.util.*
 
 @Route(path = Constants.NRECORD_AUDIO_ACTIVITY_PATH)
-class NRecordAudioActivity : BaseViewModelActivity<EmptyViewModel>() {
+class NRecordAudioActivity : BaseToolbarViewModelActivity<EmptyViewModel>() {
 
     override fun providerVMClass(): Class<EmptyViewModel>? = EmptyViewModel::class.java
+
+    override fun setToolbarTitle(): String? = "录音"
 
     override fun getResId(): Int {
         return R.layout.activity_nrecord_audio
